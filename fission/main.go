@@ -20,6 +20,7 @@ import (
 	"os"
 
 	"github.com/urfave/cli"
+	"fmt"
 )
 
 func main() {
@@ -27,9 +28,14 @@ func main() {
 	app.Name = "fission"
 	app.Usage = "Serverless functions for Kubernetes"
 	app.Version = "0.4.0"
-
+	LocalPort := "30500"
+	err := runportForward(LocalPort)
+	if err != nil {
+		fmt.Sprintf("%v", err)
+		fatal()
+	}
 	app.Flags = []cli.Flag{
-		cli.StringFlag{Name: "server", Usage: "Fission server URL", EnvVar: "FISSION_URL"},
+		cli.StringFlag{Name: "server", Value: "127.0.0.1:30500", Usage: "Fission server URL"},
 	}
 
 	// trigger method and url flags (used in function and route CLIs)
