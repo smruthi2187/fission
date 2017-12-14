@@ -42,6 +42,7 @@ func main() {
 	}()
 	fmt.Println("goroutine portforward has been called")
 	time.Sleep(10 * time.Second)
+
 	app.Flags = []cli.Flag{
 		cli.StringFlag{Name: "server", Value: "127.0.0.1:" + LocalPort, Usage: "Fission server URL"},
 	}

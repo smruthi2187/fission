@@ -5,6 +5,7 @@ import (
 	"os"
 	"github.com/fission/fission/crd"
 	"k8s.io/client-go/tools/portforward"
+
 	"k8s.io/client-go/tools/remotecommand"
 	//"k8s.io/client-go/rest"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -26,18 +27,13 @@ func runportForward(localPort string) error {
 	}
 	var podName string
 	var podNameSpace string
+
 	//there should only be one Pod in this list, the controller pod
 	for _, item := range PodList.Items {
 
 		podName = item.Name
 		podNameSpace = item.Namespace
 		break
-	}
-	fmt.Println(podName)
-
-	if err != nil {
-		msg := fmt.Sprintf("%v", err)
-		fatal(msg)
 	}
 
 	//get the ControllerPort
