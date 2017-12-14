@@ -31,8 +31,7 @@ func main() {
 	LocalPort := "30500"
 	err := runportForward(LocalPort)
 	if err != nil {
-		fmt.Sprintf("%v", err)
-		fatal()
+		fatal(fmt.Sprintf("%v", err))
 	}
 	app.Flags = []cli.Flag{
 		cli.StringFlag{Name: "server", Value: "127.0.0.1:" + LocalPort, Usage: "Fission server URL"},

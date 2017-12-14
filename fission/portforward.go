@@ -5,10 +5,9 @@ import (
 	"os"
 	"github.com/fission/fission/crd"
 	"k8s.io/client-go/tools/portforward"
-	"k8s.io/client-go/transport/spdy"
-	"k8s.io/client-go/rest"
+	"k8s.io/client-go/tools/remotecommand"
+	//"k8s.io/client-go/rest"
 	meta_v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"net/http"
 )
 
 func runportForward(localPort string) error {
@@ -32,9 +31,7 @@ func runportForward(localPort string) error {
 		podName = item.Name
 		break
 	}
-
-
-	RESTClient, err := rest.RESTClientFor(config)
+	fmt.Println(podName)
 
 	if err != nil {
 		msg := fmt.Sprintf("%v", err)
@@ -44,27 +41,29 @@ func runportForward(localPort string) error {
 	StopChannel := make(chan struct{}, 1)
 	ReadyChannel := make(chan struct{})
 
+	fmt.Println("creating request url")
 	//create request URL
-	req := RESTClient.Post().Resource("pods").Namespace("").Name(podName).SubResource("portforward")
-
+	req := PodClient.CoreV1Client.RESTClient().Post().Resource("pods").Namespace("default").Name(podName).SubResource("portforward")
 	url := req.URL()
+
+
+	fmt.Println("finished creating request url: ", url)
 
 	//create ports slice
 	ports := []string{localPort, "8888"}
 
 	//actually start the port-forwarding process here
-	transport, upgrader, err := spdy.RoundTripperFor(config)
+	dialer, err := remotecommand.NewExecutor(config, "POST", url)
 	if err != nil {
-		msg := fmt.Sprintf("%v", err)
+		msg := fmt.Sprintf("newexecutor errored out :%v", err)
 		fatal(msg)
 	}
-
-	dialer := spdy.NewDialer(upgrader, &http.Client{Transport:transport}, "POST", url)
 	fw, err := portforward.New(dialer, ports , StopChannel, ReadyChannel, os.Stdout, os.Stderr)
 
 	if err != nil {
-		msg := fmt.Sprintf("%v", err)
+		msg := fmt.Sprintf("portforward.new errored out :%v", err)
 		fatal(msg)
 	}
+	fmt.Println("calling portforwarder forwardports")
 	return fw.ForwardPorts()
 }
