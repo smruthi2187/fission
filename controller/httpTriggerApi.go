@@ -51,7 +51,8 @@ func (a *API) checkHTTPTriggerDuplicates(t *crd.HTTPTrigger) error {
 		return err
 	}
 	for _, ht := range triggers.Items {
-		if ht.Spec.RelativeURL == t.Spec.RelativeURL && ht.Spec.Method == t.Spec.Method && ht.Spec.Host == t.Spec.Host {
+		if ht.Spec.RelativeURL == t.Spec.RelativeURL && ht.Spec.Method == t.Spec.Method &&
+			ht.Spec.Host == t.Spec.Host && ht.Metadata.Name != t.Metadata.Name {
 			return fission.MakeError(fission.ErrorNameExists,
 				fmt.Sprintf("HTTPTrigger with same Host, URL & method already exists (%v)",
 					ht.Metadata.Name))
